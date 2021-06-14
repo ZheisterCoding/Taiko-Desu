@@ -1,0 +1,93 @@
+code history:
+
+//MENU ITEM
+
+class MenuItem :
+    Button
+{
+    public:
+        sf::RectangleShape Border;
+    public:
+        MenuItem(float x_pos, float y_pos, float width, float height,
+            sf::Font* font, std::string text,
+            sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor);
+        ~MenuItem();
+
+        void modify();
+
+        const bool isPressed() const;
+        void update(const sf::Vector2f mousePos);
+        void render(sf::RenderTarget* target);
+
+};
+
+//OTHER CLASS FUNCTIONS
+
+MenuItem::MenuItem(float x_pos, float y_pos, float width, float height,
+	sf::Font* font, std::string text, 
+	sf::Color idleColor, sf::Color hoverColor, sf::Color activeColor) 
+		: Button(x_pos,  y_pos,  width,  height,
+			font,  text,
+			idleColor,  hoverColor,  activeColor)
+{
+	this->modify();
+}
+
+MenuItem::~MenuItem()
+{
+}
+
+void MenuItem::modify()
+{
+	this->Border.setPosition(sf::Vector2f(this->defaultShape.getPosition().x - 10, this->defaultShape.getPosition().y - 10));
+	this->Border.setSize(sf::Vector2f(this->defaultShape.getGlobalBounds().width + 20, this->defaultShape.getGlobalBounds().height + 20));
+
+	this->centerText.setCharacterSize(50);
+}
+
+const bool MenuItem::isPressed() const
+{
+	if (this->buttonState == BTN_PRESSED)
+		return true;
+
+	return false;
+}
+
+void MenuItem::update(const sf::Vector2f mousePos)
+{
+	this->buttonState = BTN_IDLE;
+
+	if (this->defaultShape.getGlobalBounds().contains(mousePos)) {
+		//Hover
+		this->buttonState = BTN_HOVER;
+
+		if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+			this->buttonState = BTN_PRESSED;
+		}
+	}
+
+	switch (buttonState)
+	{
+	case BTN_IDLE:
+		this->defaultShape.setFillColor(this->idleColor);
+		break;
+	case BTN_HOVER:
+		this->defaultShape.setFillColor(this->hoverColor);
+		break;
+	case BTN_PRESSED:
+		this->defaultShape.setFillColor(this->activeColor);
+		break;
+	default:
+		this->defaultShape.setFillColor(sf::Color::Red);
+
+		break;
+	}
+
+}
+
+void MenuItem::render(sf::RenderTarget* target)
+{
+	target->draw(this->Border);
+	target->draw(this->defaultShape);
+	target->draw(this->centerText);
+}
